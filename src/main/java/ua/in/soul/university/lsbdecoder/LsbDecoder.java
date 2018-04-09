@@ -23,18 +23,18 @@ public class LsbDecoder {
     public static String decode(String inputFileName) {
         Matrix tripleMatrix = new Matrix(readFile(inputFileName)    // 1. Read input file line by line
                 .map(LsbDecoder::lineToBitValueStream)              // 2. Replace each component with its last bit
-                .map(LsbDecoder::splitToTriples)
+                .map(LsbDecoder::splitToTriples)                    // 3. Split by RGB triples
                 .collect(toList()));
 
-
+        // 4. Matrix inversion to read triples column by column instead of row by row
         List<String> lastBitValues = bitListFromMatrix(tripleMatrix.inverse()).collect(toList());
 
-        return IntStream.range(0, pageCount(lastBitValues, SEGMENT_BIT_COUNT))      // 4. Determine segment count
-                .mapToObj(i -> pageFromList(lastBitValues, i, SEGMENT_BIT_COUNT))   // 5. Get each segment source values
-                .map(LsbDecoder::binarySegmentFromList)                             // 6. Convert to segment
-                .mapToInt(segmentStr -> Integer.valueOf(segmentStr, BINARY_RADIX))  // 7. Convert segment to value
-                .mapToObj(LsbDecoder::symbolWithAsciiCode)                          // 8. Get symbol by ASCII code
-                .collect(joining());                                                // 9. Collect them as single string
+        return IntStream.range(0, pageCount(lastBitValues, SEGMENT_BIT_COUNT))      // 5. Determine segment count
+                .mapToObj(i -> pageFromList(lastBitValues, i, SEGMENT_BIT_COUNT))   // 6. Get each segment source values
+                .map(LsbDecoder::binarySegmentFromList)                             // 7. Convert to segment
+                .mapToInt(segmentStr -> Integer.valueOf(segmentStr, BINARY_RADIX))  // 8. Convert segment to value
+                .mapToObj(LsbDecoder::symbolWithAsciiCode)                          // 9. Get symbol by ASCII code
+                .collect(joining());                                                // 10. Collect them as single string
     }
 
     @SneakyThrows
